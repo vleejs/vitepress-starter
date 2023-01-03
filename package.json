@@ -3,6 +3,8 @@
   "version": "0.0.1",
   "description": "use vitepress",
   "scripts": {
+    "dev": "vitepress dev docs",
+    "build": "vitepress build docs",
     "docs:dev": "vitepress dev docs",
     "docs:build": "vitepress build docs",
     "docs:serve": "vitepress serve docs"
@@ -11,8 +13,8 @@
   "author": "",
   "dependencies": {
     "@antv/g2plot": "^2.4.20",
-    "vitepress": "1.0.0-alpha.20",
-    "vue": "^3.2.40"
+    "vitepress": "1.0.0-alpha.34",
+    "vue": "^3.2.45"
   },
   "pnpm": {
     "peerDependencyRules": {
@@ -20,5 +22,8 @@
         "@algolia/client-search"
       ]
     }
+  },
+  "devDependencies": {
+    "prettier": "^2.8.1"
   }
 }
