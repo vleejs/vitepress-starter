@@ -238,3 +238,112 @@ console.log(path.dirname(__filename));
 
 阶段小结：通过开源项目 vite 配置，大体了解 `vite.config.ts/js` 在项目启动的某个时机执行
 后面我们只需要，用到什么配置了解什么配置就好。装包，然后配置。看文档了解用法。
+
+## rollup
+
+在看了一个 vite 的实际项目之后，还要了解一个内容 `rollup`
+
+```sh
+git clone https://github.com/rollup/rollup.git
+```
+
+其实 rollup 还是挺好的，想写一个 `npm 包` 的话，可以使用`rollup`。vite 和它的联系十分紧密，需要先看看。
+
+在几年前，我查到一篇文章讲的就是如何使用 rollup 发布一个 npm 包，[这是仓库](https://github.com/MrXujiang/timeout_rollup) （注意：有的配置可能发生变化，但可以参考学习一下）
+
+如果通读一下[rollupjs](https://rollupjs.org/guide/en/)文档，会发现一个文件 `rollup.config.js`
+
+1、我个人认为：rollup 和 vite 的设计异曲同工之妙
+2、rollup 学习的优先级可以低于 vite，先把 vite 应用到真实的项目中
+
+## vite
+
+本小节看一下 `vite` 的源码，不过不用担心，很你一定看得懂。其实上文说了，vite 是 vite 官方组织中标星最多的，这很正常，所以 clone 一下
+
+```sh
+git clone https://github.com/vitejs/vite.git
+```
+
+然后项目内搜索一下 `rollup.config.ts` 文件，它在 `你的项目根目录/packages/vite` 下
+
+```js
+// rollup.config.ts
+import { readFileSync } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+```
+
+`node:xx` 推测是高版本 node 的写法
+
+```js
+const pkg = JSON.parse(
+  readFileSync(new URL('./package.json', import.meta.url)).toString()
+);
+```
+
+可以通过这种方式读取 `package.json` 中的当前项目的信息
+
+先在这个文件搜一下 `defineConfig`
+
+```js
+// 作用是整一个环境变量的配置 （其中__dirname我们上文说过）
+const envConfig = defineConfig({
+  // 输入文件
+  input: path.resolve(__dirname, 'src/client/env.ts'),
+  // 用什么插件
+  plugins: [
+    typescript({
+      tsconfig: path.resolve(__dirname, 'src/client/tsconfig.json'),
+    }),
+  ],
+  // 输出什么
+  output: {
+    file: path.resolve(__dirname, 'dist/client', 'env.mjs'),
+    sourcemap: true,
+  },
+});
+```
+
+同样的道理 `clientConfig` `sharedNodeOptions` `createNodeConfig` 都是同样的道理
+
+然后在看一下 `export default`,其实 这才是这个文件的出口，作用就是生成 `rollup`的配置
+还有一些“辅助函数” 比如 `bundleSizeLimit` `cjsPatchPlugin` `shimDepsPlugin`
+
+阶段小结：结合看 rollup 的文档 和 vite 源码中 rollup 的配置粗略的了解了一下。
+
+## rollup
+
+又回到 `rollup`，可以初始化一个项目，简单跑一下，
+
+```sh
+pnpm init -y
+```
+
+使用`rollup -c` 脚本执行一下 `rollup.config.js` 文件
+
+```js
+/**
+ * @type { import('rollup').RollupOptions }
+ * 提供 type 提示
+ */
+const rollupOptions = {
+  input: 'input.js', // 某一个入口
+  output: [
+    // 输出不同的格式可以是个数组
+    {
+      file: 'output-iife.js',
+      format: 'iife', // 浏览器
+    },
+    {
+      file: 'output-esm',
+      format: 'esm', // 浏览器esm
+    },
+    {
+      file: 'output-cjs',
+      format: 'cjs',
+    },
+  ],
+};
+
+export default rollupOptions; // 可以是一个对象
+```
