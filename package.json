@@ -24,6 +24,8 @@
     }
   },
   "devDependencies": {
-    "prettier": "^2.8.1"
+    "mermaid": "9.1.7",
+    "prettier": "^2.8.1",
+    "vitepress-plugin-mermaid": "^2.0.8"
   }
 }

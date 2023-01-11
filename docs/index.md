@@ -46,6 +46,27 @@ module.exports = {
 
 看了两个主题，虽然支持对特定文件夹或特定的路径进行加密，也支持进行全局范围的加密。但是有点类似`假的加密`
 
+顺便再说说这个主题皮肤 `reco`
+
+```js
+// Latest commit dda4e65 on Jul 21, 2020
+// !! 有可能已经发生迭代
+"@vuepress-reco/vuepress-plugin-back-to-top": "^1.5.4",
+    "@vuepress-reco/vuepress-plugin-kan-ban-niang": "^1.0.5",
+    "@vuepress-reco/vuepress-plugin-loading-page": "^1.4.0",
+    "@vuepress-reco/vuepress-plugin-pagation": "^1.4.7",
+    "@vuepress-reco/vuepress-plugin-screenfull": "^1.0.1",
+```
+
+整体的思路是
+
+```mermaid
+flowchart TD
+  先找一个能搭建静态站点的 --> 找一个主题 --> 找一些插件 -->看看能不能评论
+```
+
+上述的插件是 2020 年的时候，有可能现在已经迭代了
+
 ## hexo
 
 ```sh
@@ -148,4 +169,98 @@ module.exports = {
 
 在说 vitepress 之前，先说说我静态文档站点踩的坑，希望对你有启发
 
-1. 在最起初想搭建一个博客的时候，特地希望有个
+1. 在最起初想搭建一个博客的时候，特地希望有个非常绚丽的页面，所以找了很多主题 theme，也参考了别人的一些线上的博客项目是怎么配置的
+2. 没有确认博客的建立和博客的内容之前的关系，孰重孰轻，有点本末倒置
+3. 没有好好的看 vuepress 的文档，刚开始的路径不对，没有好奇它是怎么工作的，是怎么把一个 md 文档变为页面
+
+看一看仓库
+
+[https://github.com/search?o=desc&q=vitepress&s=stars&type=Repositories](https://github.com/search?o=desc&q=vitepress&s=stars&type=Repositories)
+
+当时在刚接触 vuepress 的时候，没有好奇 vuepress 的文档是怎么搭建的，是怎么配置的。
+这次使用 vitepress 我先是找了一下，项目的根目录就有 `https://github.com/vuejs/vitepress/tree/main/docs`
+以后想写文档直接参考这个配置就好
+
+着重看这个文件 ：[vitepress/docs/.vitepress/config.ts](https://github.com/vuejs/vitepress/blob/main/docs/.vitepress/config.ts)
+
+- lang: 值是一个字符串 ，默认是 `en-US`
+
+```html
+<!DOCTYPE html>
+<html lang="en"></html>
+```
+
+- title 和 description 和上文的 lang 都是基础的配置
+- cleanUrls ：'disabled' | 'without-subfolders' | 'with-subfolders'
+
+| 模式                 |  页面   |      生成的页面 |   网址    |
+| -------------------- | :-----: | --------------: | :-------: |
+| 'disabled'           | /foo.md |       /foo.html | /foo.html |
+| 'without-subfolders' | /foo.md |       /foo.html |   /foo    |
+| 'with-subfolders'    | /foo.md | /foo/index.html |   /foo    |
+
+themeConfig：主题的一些配置
+
+```js
+// 生成 顶部的nav 导航
+function nav() {
+  return [
+    { text: 'Guide', link: '/guide/what-is-vitepress', activeMatch: '/guide/' },
+    { text: 'Configs', link: '/config/introduction', activeMatch: '/config/' },
+    {
+      text: pkg.version,
+      items: [
+        {
+          text: 'Changelog',
+          link: 'https://github.com/vuejs/vitepress/blob/main/CHANGELOG.md',
+        },
+        {
+          text: 'Contributing',
+          link: 'https://github.com/vuejs/vitepress/blob/main/.github/contributing.md',
+        },
+      ],
+    },
+  ];
+}
+```
+
+关于文档，我很多都是一时兴起，然后想写点什么，这种完全满足了自己的需求，能够立刻生成一个文档，后来想着
+
+`md` `mind` 页面 就是能够在 md 里边写思维导图，可以看看这个
+
+```sh
+git clone https://github.com/mermaid-js/mermaid
+```
+
+要是使用 vitepress ,你可以看看 [CMS](https://mermaid.js.org/misc/integrations.html#cms)
+其中有一个插件可以在 vitepress 中使用，这是文档 [https://emersonbottero.github.io/vitepress-plugin-mermaid/guide/getting-started.html](https://emersonbottero.github.io/vitepress-plugin-mermaid/guide/getting-started.html)
+
+使用的案例，
+
+这个插件能够在 vitepress 的环境中，可以在 md 文档中 写思维导图。
+
+```js
+import { defineConfig } from 'vitepress';
+import { withMermaid } from 'vitepress-plugin-mermaid';
+
+export default withMermaid(
+  defineConfig({
+    title: 'VitePress-starter',
+    description: 'use VitePress',
+
+    lastUpdated: true,
+
+    mermaid: {
+      // refer https://mermaid-js.github.io/mermaid/#/Setup for options
+    },
+  })
+);
+```
+
+若果直接安装使用，会报这个错误
+
+```js
+Uncaught SyntaxError: The requested module '/@fs/D:/gh-code/vitepress-starter/node_modules/.pnpm/moment-mini@2.29.4/node_modules/moment-mini/moment.min.js?v=9ddd3ffc' does not provide an export named 'default' (at mermaid.core.mjs?v=9ddd3ffc:7:8)
+```
+
+你可以看看这个 [issues/24](https://github.com/emersonbottero/vitepress-plugin-mermaid/issues/24) 有上述问题的讨论
