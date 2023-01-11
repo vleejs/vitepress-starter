@@ -72,7 +72,10 @@ try {
 小程序和 vue 不同的一点就是 小程序在写的时候确实需要思考在代码设计的时候怎么写，比如是用类啊或者 function。关于数据的变更，vue 帮开发者做了很多，当写多了 vue，有点忘记了，数据和视图究竟有什么关联。
 之前写 `jquery` ，在写的时候需要想一想，第一步做什么，第二步做什么。
 还有就是小程序通用的部分，比如顶部的 tab 等等，在 vue 中一个`comp` 随便在哪个单文件组件中真的很方便。
-小程序的话需要好好看看上文提到的自定义组件章节
+小程序的话需要好好看看上文提到的自定义组件章节。
+还有就是在`vue2` 中可以很方便的 使用 `filter`。小程序中可以新建一个 `filter.wxs` 文件
+
+[https://developers.weixin.qq.com/miniprogram/dev/reference/wxs/01wxs-module.html](https://developers.weixin.qq.com/miniprogram/dev/reference/wxs/01wxs-module.html)
 
 ## 应用设计
 
@@ -218,4 +221,340 @@ const wxRequestSubscribeMessage = () => {
     })
   })
 }
+```
+
+```js
+// wx.js 选择图片
+/**
+ * 基础库 2.10.0 以上 拍摄或从手机相册中选择图片或视频
+ */
+const wxChooseMedia = () => {
+  return new Promise((resolve, reject) => {
+    wx.chooseMedia({
+      count: 1, // 选择1张
+      mediaType: ['image'], // 只能选图片
+      sourceType: ['album', 'camera'], // 相册 拍照
+      maxDuration: 30,
+      camera: 'back',
+      sizeType: ['compressed'], // 压缩
+      fail: (err) => {
+        console.log('wx.chooseMedia进入fail回调', err)
+        resolve(false)
+      },
+      success: (res) => {
+        /**
+         * tempFiles
+         * type
+         */
+        console.log('wx.chooseMedia 进入success回调', res)
+
+        const { errMsg, tempFiles } = res
+
+        if (errMsg === 'chooseMedia:ok') {
+          let file = {}
+          if (Array.isArray(tempFiles) && tempFiles.length > 0) {
+            file = tempFiles[0]
+          } else {
+            file = tempFiles
+          }
+          console.log('选中的文件', file)
+          const { tempFilePath, size } = file
+          console.log('文件的临时路径', tempFilePath)
+          const m = size2M(size)
+          console.log('文件的大小', m)
+
+          resolve(tempFilePath)
+        } else {
+          console.warn('errMsg 不是chooseMedia:ok')
+          wx.showToast({
+            title: '图片获取失败，请重试',
+            icon: 'none',
+            duration: tD,
+          })
+          resolve(false)
+        }
+      },
+    })
+  })
+}
+```
+
+写到这里，不得不说一下 `callback` 的`promise化`，一些必要的场景下，可以都使用 `resolve`
+
+- resolve(true) 代码操作 ok
+- resolve(false) 代表操作发生了异常
+  这样在外层很容易判断，只需要 `async await` 内层操作的结果是 true 还是 false 就好
+
+关于 `get.js`，这里也说一个场景，那就是 **获取当前小程序环境内的变量信息**
+
+[https://developers.weixin.qq.com/miniprogram/dev/api/open-api/account-info/wx.getAccountInfoSync.html](https://developers.weixin.qq.com/miniprogram/dev/api/open-api/account-info/wx.getAccountInfoSync.html)
+
+```js
+const getConf = () => {
+  const res = wx.getAccountInfoSync()
+  const retConf = {
+    env: '',
+  }
+  /**
+ * {
+//     miniProgram: {
+//         appId: "************"
+//         envVersion: "develop" develop 开发版 trial 体验版  release 正式版
+//         version: "" // 线上小程序版本号仅支持在正式版小程序中获取，开发版和体验版中无法获取。
+//     }
+
+ */
+  try {
+    const {
+      miniProgram: { envVersion },
+    } = res
+    if (envVersion) {
+      retConf.env = envVersion
+    }
+
+    const wConf =
+      typeof __wxConfig !== 'undefined' ? __wxConfig : { envVersion: '' }
+    const { envVersion: eV } = wConf
+    if (eV) {
+      retConf.env = eV
+    }
+  } catch (error) {}
+
+  return retConf
+}
+```
+
+## 小程序请求用户的授权
+
+关于授权这块，很容易查到一些资料。这里也简单说下，
+
+[https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/authorize.html#scope%20%E5%88%97%E8%A1%A8](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/authorize.html#scope%20%E5%88%97%E8%A1%A8)
+
+整理的流程是
+
+- 未接受或拒绝过 弹窗询问
+- 已经授权 直接调用
+- 已拒绝 兼容用户拒绝的场景
+
+获取位置信息，不过但凡牵扯到位置的，需要保持警惕，可以多看微信团队的公告 [https://developers.weixin.qq.com/community/develop/doc/000a02f2c5026891650e7f40351c01?highLine=%25E4%25BD%258D%25E7%25BD%25AE%25E4%25BF%25A1%25E6%2581%25AF](https://developers.weixin.qq.com/community/develop/doc/000a02f2c5026891650e7f40351c01?highLine=%25E4%25BD%258D%25E7%25BD%25AE%25E4%25BF%25A1%25E6%2581%25AF)
+
+```js
+{
+  "pages": ["pages/index/index"],
+  "permission": {
+    "scope.userLocation": {
+      "desc": "你的位置信息将用于小程序位置接口的效果展示" //
+    }
+  }
+}
+
+```
+
+这在一些业务场景中非常常见，尤其小程序通过蓝牙操作一些支持蓝牙的终端设备。
+
+```js
+// 具体得代码实现
+
+// 首先构造 需要拿到用户权限的 list Map表
+const authList = {
+  userLocation: {
+    apiName: ['getLocation', 'chooseLocation'],
+    authTitle: '请求授权当前位置',
+    authContent: '需要获取您的位置，请确认授权',
+  },
+  bluetooth: {
+    apiName: ['', ''],
+    authTitle: '请求使用蓝牙功能',
+    authContent: '需要获取您的蓝牙，请确认授权',
+  },
+}
+```
+
+紧接着需要看一下 `wx.getSetting`
+[https://developers.weixin.qq.com/miniprogram/dev/api/open-api/setting/wx.getSetting.html](https://developers.weixin.qq.com/miniprogram/dev/api/open-api/setting/wx.getSetting.html)
+
+```js
+/**
+ * 用户当前的设置 已经向用户请求过的权限
+ */
+
+const wxGetSetting = (key) => {
+  if (typeof key !== 'string') return false
+  if (!authList[key]) return false
+  const scopeKey = `scope.${key}`
+  console.log('wx getSetting.scopeKey', scopeKey)
+  return new Promise((resolve, reject) => {
+    wx.getSetting({
+      fail: (err) => {
+        console.log('wx getSetting.fail', err)
+        resolve('not-ok')
+      },
+      success: async (res) => {
+        const { authSetting } = res
+        console.log('wx getSetting.authSetting', authSetting)
+        if (!authSetting.hasOwnProperty(scopeKey)) {
+          console.log('wx key不在配置中')
+          // 属性不存在
+          const ret = await wxAuthorize(key)
+          console.log('===', ret)
+          if (ret === 'ok') {
+            resolve('ok')
+          } else {
+            resolve('not-ok')
+          }
+        } else {
+          console.log('wx key在配置中')
+          if (authSetting[scopeKey] === false) {
+            console.log('wx key虽在配置中但值是false', authSetting[scopeKey])
+            const isOk = await _showModal(key)
+            if (isOk === 'ok') {
+              resolve('ok')
+            } else {
+              resolve('not-ok')
+            }
+          } else {
+            resolve('ok') // 已经授权或者还未进行过授权
+          }
+        }
+        /**
+       * authSetting:
+            scope.address: true
+            scope.bluetooth: true
+            scope.invoice: true
+            scope.invoiceTitle: true
+            scope.userInfo: true
+            scope.userLocation: true
+        */
+
+        // 判断key是否在对象中
+
+        // // 用户拒绝过
+
+        // // res.authSetting = {
+        // //   "scope.userInfo": true,
+        // //   "scope.userLocation": true
+        // // }
+      },
+    })
+  })
+}
+```
+
+还有就是需要设置一个 `modal` 引导用户去打开这些权限，因为在后续的业务流程中是必要的的。
+
+```js
+/**
+ * 引导去授权设置页面
+ */
+const _showModal = (key) => {
+  const title = authList[key].authTitle
+  const content = authList[key].authContent
+  console.log('需要展示Modal title', title)
+  console.log('需要展示Modal content', content)
+  return new Promise((resolve, reject) => {
+    wx.showModal({
+      title,
+      content,
+      success(res) {
+        if (res.confirm) {
+          wx.openSetting({
+            success: (dataAu) => {
+              if (dataAu.authSetting[`scope.${key}`] === true) {
+                wx.showToast({
+                  title: '授权成功',
+                  icon: 'success',
+                  duration: 1000,
+                })
+                resolve('ok')
+              } else {
+                wx.showToast({
+                  title: '授权失败',
+                  icon: 'error',
+                  duration: 1000,
+                })
+                resolve('not-ok')
+              }
+            },
+          })
+        } else if (res.cancel) {
+          wx.showToast({
+            title: '授权失败',
+            icon: 'error',
+            duration: 1000,
+          })
+        }
+      },
+    })
+  })
+}
+```
+
+## 有关小程序其他的一些内容
+
+### 项目优化
+
+```json
+// app.json
+  "lazyCodeLoading": "requiredComponents",
+```
+
+vant
+
+vant 组件不支持部分引入，上传的代码包会把这部分文件过滤掉，所以这些并不会影响实际上传的代码包的大小。
+
+项目文件中实际存在的无依赖代码可以搜索过滤出来，验证这些代码实际没有用到，可以进行删除，减小体积并优化加载速度。
+
+### 文件上传
+
+- 文件上传 牵扯到用户的隐私协议 需要填写用户隐私指引 [docs](https://vant-contrib.gitee.io/vant-weapp/#/quickstart#guan-yu-yong-hu-yin-si-bao-hu-zhi-yin)
+- [用户指引](https://developers.weixin.qq.com/miniprogram/dev/framework/user-privacy/)
+
+### 短信短消息跳转到小程序
+
+开发者工具可直接测试 URL Schema
+
+[小程序链接生成与使用规则调整公告 https://developers.weixin.qq.com/community/develop/doc/000aeab88a4ea0c5c89d81fde5b801](https://developers.weixin.qq.com/community/develop/doc/000aeab88a4ea0c5c89d81fde5b801)
+
+按照微信的意思[https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/url-scheme.html](https://developers.weixin.qq.com/miniprogram/dev/framework/open-ability/url-scheme.html)
+
+> iOS 系统支持识别 URL Scheme，可在短信等应用场景中直接通过 Scheme 跳转小程序。
+> Android 系统不支持直接识别 URL Scheme，用户无法通过 Scheme 正常打开小程序，开发者需要使用 H5 页面中转，再跳转到 Scheme 实现打开小程序
+
+简言之，就是准备一个 `h5` 页面，跳转到这个地址 'weixin://dl/business/?t= _TICKET_' 。至于这个**h5** 页面，主要是当前页面所在的环境，是 web 电脑上的浏览器，还是微信浏览器 ，还是手机上其他的浏览器
+
+```js
+
+   isWXWork() {
+      return this.ua.match(/wxwork/i) == 'wxwork'
+    },
+    isWeixin() {
+      return (
+        !this.isWXWork && this.ua.match(/micromessenger/i) == 'micromessenger'
+      )
+    },
+    isMobile() {
+      return navigator.userAgent.match(
+        /(phone|pad|pod|iPhone|iPod|ios|iPad|Android|Mobile|IEMobile)/i
+      )
+    },
+    isDesktop() {
+      return !this.isMobile
+    }
+```
+
+```js
+
+ handleJumpMP() {
+      console.log(
+        '当前所在的位置是微信外的手机浏览器，开始跳转的地址',
+        this.jumpWxUrl
+      )
+      if (!this.jumpWxUrl) {
+        this.$toast.fail('跳转失败，刷新浏览器重试')
+        return
+      } else {
+        // 跳转到地址准备好了
+        location.href = this.jumpWxUrl
+      }
+    }
 ```
