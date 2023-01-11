@@ -25,7 +25,7 @@ module.exports = {
       lineColor: '#42b983', // 登录页动画线的颜色
     },
   },
-};
+}
 ```
 
 我打开控制台，发现这种加密方式是 通过 class 样式 或者某种 hidden 隐藏了页面内容，但是 文档的内容还是可以看到，达不到真正加密的方式，这种实操不符合我的需求
@@ -139,7 +139,7 @@ module.exports = {
       },
     ],
   },
-};
+}
 ```
 
 移动端的优化，在移动端，搜索框在获得焦点时会放大，并且在失去焦点后可以左右滚动，这可以通过设置元来优化。
@@ -220,7 +220,7 @@ function nav() {
         },
       ],
     },
-  ];
+  ]
 }
 ```
 
@@ -240,8 +240,8 @@ git clone https://github.com/mermaid-js/mermaid
 这个插件能够在 vitepress 的环境中，可以在 md 文档中 写思维导图。
 
 ```js
-import { defineConfig } from 'vitepress';
-import { withMermaid } from 'vitepress-plugin-mermaid';
+import { defineConfig } from 'vitepress'
+import { withMermaid } from 'vitepress-plugin-mermaid'
 
 export default withMermaid(
   defineConfig({
@@ -254,7 +254,7 @@ export default withMermaid(
       // refer https://mermaid-js.github.io/mermaid/#/Setup for options
     },
   })
-);
+)
 ```
 
 若果直接安装使用，会报这个错误
@@ -264,3 +264,13 @@ Uncaught SyntaxError: The requested module '/@fs/D:/gh-code/vitepress-starter/no
 ```
 
 你可以看看这个 [issues/24](https://github.com/emersonbottero/vitepress-plugin-mermaid/issues/24) 有上述问题的讨论
+
+在`vitepress` 中和 `vuepress` 中比较友好的一点是可以直接使用 `vue组件`
+
+[https://vitepress.vuejs.org/guide/using-vue](https://vitepress.vuejs.org/guide/using-vue)
+
+<script setup>
+import WordCloud from './components/WordCloud.vue'
+</script>
+
+<WordCloud />
