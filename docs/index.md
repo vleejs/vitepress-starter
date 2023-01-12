@@ -274,3 +274,49 @@ import WordCloud from './components/WordCloud.vue'
 </script>
 
 <WordCloud />
+
+要想这样使用一个组件，和写 vue 代码差不多，装一下`@antv/g2plot` 的依赖，然后在 `docs/components` 新建一个组件`WordCloud.vue`
+
+```vue
+<script lang="ts" setup>
+import { onMounted, onBeforeUnmount } from 'vue'
+import { WordCloud } from '@antv/g2plot'
+
+// 渲染WordCloud
+let wordCloud
+onMounted(() => {
+  wordCloud = new WordCloud('wordcloud-container', {
+    data: [
+      {
+        name: 'a-name',
+        value: 12,
+      },
+      {
+        name: 'b-name',
+        value: 12,
+      },
+    ],
+    wordField: 'name',
+    weightField: 'value',
+    colorField: 'name',
+    wordStyle: {
+      fontFamily: 'Verdana',
+      fontSize: [14, 35],
+      rotation: 0,
+    },
+    // 返回值设置成一个 [0, 1) 区间内的值，
+    // 可以让每次渲染的位置相同（前提是每次的宽高一致）。
+    random: () => 0.5,
+  })
+  wordCloud.render()
+})
+
+onBeforeUnmount(() => {
+  wordCloud.destroy()
+})
+</script>
+
+<template>
+  <div id="wordcloud-container"></div>
+</template>
+```
