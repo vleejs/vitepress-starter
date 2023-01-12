@@ -160,10 +160,32 @@ module.exports = {
 
 [阶段小结]
 
+- 0、VuePress 是一个以 Markdown 为中心的静态网站生成器
 - 1、现在能使用 vitepress 尽可能使用 `vitepress` ，当社区中没有你需求的插件或者能力的时候，可以使用 vuepress
 - 2、不管使用 `config.ts` 或者 `config.js` 都行，在你的项目中可以轻松接入 `typescript`
 - 3、尽可能多读文档，不必要不看一下相关的博客，讲怎么配置怎么配置，有时候可能会把你搞懵圈
 - 4、也不必使用一些第三方的主题，除非你对文档的“华丽性” 有要求，但是这和极简的主旨恰恰相反
+
+随着技术的更新，`vuepress` 也有了 [https://v2.vuepress.vuejs.org/](https://v2.vuepress.vuejs.org/)
+
+```sh
+git clone https://github.com/vuepress/vuepress-next
+```
+
+As Easy as 1, 2, 3
+
+```sh
+pnpm add -D vuepress@next @vuepress/client@next vue
+
+# create a markdown file
+echo '# Hello VuePress' > README.md
+
+# start writing
+pnpm vuepress dev
+
+# build to static files
+pnpm vuepress build
+```
 
 ## vitepress
 
@@ -320,3 +342,39 @@ onBeforeUnmount(() => {
   <div id="wordcloud-container"></div>
 </template>
 ```
+
+## slidev
+
+[https://cn.sli.dev/guide/why.html#slidev](https://cn.sli.dev/guide/why.html#slidev)
+[https://mermaid.js.org/intro/](https://mermaid.js.org/intro/)
+
+如题，《Markdown 语法页面化》，上文我们大致了解了 `mermaid` 在文末我们介绍一下 `Slidev`
+
+> Slidev 使用一种扩展的 Markdown 格式，在一个纯文本文件中存储和组织你的幻灯片。这让你专注于制作内容。
+
+只需要 在 一个`*.md` 文件中使用 `---` 添加分隔符来分隔你的幻灯片，就能制作一页又一页的`PPT`。
+
+```sh
+git clone https://github.com/slidevjs/slidev.git
+```
+
+在 [https://github.com/slidevjs/slidev/tree/main/demo/starter](https://github.com/slidevjs/slidev/tree/main/demo/starter) 可以看一下怎么使用的
+
+我是在之前学习 vite 时候发现的，当然了核心作者还是 `antfu Anthony Fu`，项目根目录下的 `slides.md` 是入口，如果没有的话，终端会提示 是否要新建一个 `slides.md`
+
+```mermaid
+sequenceDiagram
+  Alice->John: Hello John, how are you?
+  Note over Alice,John: A typical interaction
+```
+
+---
+
+```mermaid {theme: 'neutral', scale: 0.8}
+graph TD
+B[Text] --> C{Decision}
+C -->|One| D[Result 1]
+C -->|Two| E[Result 2]
+```
+
+简单的通过 md 的语法就能生成图表，真的是太炫酷了，不是吗？
