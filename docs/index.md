@@ -1,366 +1,86 @@
-一份写好的`md` 文档，非常便捷的生成一个 web 页面，然后分享给他人。即 MD 变为 Docs。这是把一些思考记录下来很好的方式。不管是日记、笔记、读书读后感等，又或者是技术博客。
-在 2022 年底 2023 年初，在了解 vite 的过程中，也用了 vitepress ，个人开发体验极佳。之前写过 `vuepress`，而`VitePress is VuePress' little brother, built on top of Vite.`
-有一个自身的需求：在一个 `web页面中`，部分内容加密，有的内容不加密。由于 vitepress 目前正在处于 `alpha` 阶段，在我用 vitepress 写 文档的过程中，也没发现比较好玩的 plugin。所以我想起了很久之前，基于 `vuepress` 的一个主题
+社群沟通的方式多了，`qq群` `微信呀` `各种圈子`，刚上班的时候，我也经常在群里看大家发的动图，这是一种在一整天无聊大编码过程中，一种乐趣。知识分享的平台也多了 `掘金`等等，也可以看看刷刷，但是有一个圈子是怎么也逃不掉的，`GitHub`。如果你检索 `vite` [https://github.com/search?o=desc&q=vite&s=stars&type=Repositories](https://github.com/search?o=desc&q=vite&s=stars&type=Repositories) ，仓库中排名第二的便是[https://github.com/slidevjs/slidev](https://github.com/slidevjs/slidev)也是今天分享的主角。
 
-```sh
-git clone https://github.com/vuepress-reco/vuepress-theme-reco-1.x
-```
+我不单单写文章，有时候写录点视频，在和别人分享内容的时候，如果有`PPT`是锦上添花的事情，但是对于我而言，有一个 bug，那就是非常不擅长作 PPT。我毕设答辩的时候，写 PPT 费了老劲了。
 
-[https://vuepress-theme-reco.recoluan.com/views/1.x/password.html](https://vuepress-theme-reco.recoluan.com/views/1.x/password.html)
+说一下背景：
+如果你写`react` 的话，可能用过 `Ant Design` [https://ant.design/index-cn](https://ant.design/index-cn)。在首页的最下面，
 
-这种加密方式，一是可以对整个项目进行加密，一个是可以对项目中的某一篇进行加密
+![图片 antd 官方首页最下面的图]()
 
-密码 123456 对应的 32 位的 md5 加密密文 `e10adc3949ba59abbe56e057f20f883e`
+有一列讲的是 **更多产品** ，排在第一个就是 `语雀`。我个人觉得这个产品的名字起的非常好。这是链接 [https://www.yuque.com/dashboard](https://www.yuque.com/dashboard) 说实话我一段时间没打开了，也改版了，在很久之前也有移动 APP 端。不过我看现在怎么收费了，我记得之前是可以写 PPT 的，难道我记错了？？不管怎么变化吧，我仍然觉得 `语雀` 是个很好的产品，但今天它不是主角
 
-```js
-// .vuepress/config.js vuepress 的配置文档
-
-module.exports = {
-  theme: 'reco',
-  themeConfig: {
-    // 密钥
-    keyPage: {
-      keys: ['e10adc3949ba59abbe56e057f20f883e'], // 1.3.0 版本后需要设置为密文
-      color: '#42b983', // 登录页动画球的颜色
-      lineColor: '#42b983', // 登录页动画线的颜色
-    },
-  },
-}
-```
-
-我打开控制台，发现这种加密方式是 通过 class 样式 或者某种 hidden 隐藏了页面内容，但是 文档的内容还是可以看到，达不到真正加密的方式，这种实操不符合我的需求
-
-![vuepress 主题加密页面图片]()
-
-接着，看下这部分
-
-[https://theme-hope.vuejs.press/zh/guide/feature/encrypt.html](https://theme-hope.vuejs.press/zh/guide/feature/encrypt.html)
-
-::: danger
-警告
-
-注意，受到 VuePress 的限制，在未解密前，文章内容仅仅被隐藏，访问者仍可以从源码中获取文章的内容。
-
-所以请不要使用该加密功能用于任何敏感、机密的文章与档案，造成的后果请你自负
-:::
-
-看了两个主题，虽然支持对特定文件夹或特定的路径进行加密，也支持进行全局范围的加密。但是有点类似`假的加密`
-
-顺便再说说这个主题皮肤 `reco`
-
-```js
-// Latest commit dda4e65 on Jul 21, 2020
-// !! 有可能已经发生迭代
-"@vuepress-reco/vuepress-plugin-back-to-top": "^1.5.4",
-    "@vuepress-reco/vuepress-plugin-kan-ban-niang": "^1.0.5",
-    "@vuepress-reco/vuepress-plugin-loading-page": "^1.4.0",
-    "@vuepress-reco/vuepress-plugin-pagation": "^1.4.7",
-    "@vuepress-reco/vuepress-plugin-screenfull": "^1.0.1",
-```
-
-整体的思路是
-
-```mermaid
-flowchart TD
-  先找一个能搭建静态站点的 --> 找一个主题 --> 找一些插件 -->看看能不能评论
-```
-
-上述的插件是 2020 年的时候，有可能现在已经迭代了
-
-## hexo
-
-```sh
-A fast, simple & powerful blog framework, powered by Node.js.
-一个快速、简单且功能强大的博客框架，由 Node.js 提供支持。
-```
-
-> Hexo 是一个快速、简洁且高效的博客框架。Hexo 使用 Markdown（或其他渲染引擎）解析文章，在几秒内，即可利用靓丽的主题生成静态网页。
-
-在探索 文档加密过程中，我简单根据文档，跑了一个`demo`
-
-```sh
-.
-├── _config.yml # 配置文件
-├── package.json
-├── scaffolds
-├── source
-|   ├── _drafts
-|   └── _posts
-└── themes
-```
-
-跑起来看了一下，默认的**theme** 不是很好看，我不是很熟悉`hexo`，关于它的加密，你可以看
-[https://github.com/D0n9X1n/hexo-blog-encrypt/blob/master/ReadMe.zh.md](https://github.com/D0n9X1n/hexo-blog-encrypt/blob/master/ReadMe.zh.md)
-
-## vuepress
-
-在很早，我出过一期视频，讲的是怎么配置`vuepress`。放到现在来看仍有参考意义。在 `vuepress` 文档中，有关当下几个静态站点生成的方案，有个横向对比
-
-[https://v2.vuepress.vuejs.org/zh/guide/#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E6%98%AF](https://v2.vuepress.vuejs.org/zh/guide/#%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E6%98%AF)
-
-在`package.json`，文件中
-
-```json
- "scripts": {
-    "docs:dev": "vuepress dev docs",
-    "docs:build": "vuepress build docs"
-  },
-```
-
-这两个脚本需要特别留意一下，这在一些静态部署的网站上是需要进行 部署配置的。在 `vuepress` 跑起来之后
-
-首页读取的是 `项目的根目录/docs/index.md` ，把这个 md 渲染在页面首页
-
-![vuepress 官方仓库 docs 下的目录结构图片]
-
-接着就是配置`.vuepress/config.js`
-
-```js
-module.exports = {
-  title: 'vitepress',
-  description: 'fett',
-  themeConfig: {
-    nav: [
-      { text: 'Guides', link: '/guides/' },
-      { text: 'External', link: 'https://google.com' },
-    ],
-    sidebar: [
-      {
-        title: 'HTML', // 必要的
-
-        collapsable: false, // 可选的, 默认值是 true,
-
-        children: ['/guides/html/'],
-      },
-      {
-        title: 'CSS',
-        collapsable: true,
-        children: ['/guides/css/'],
-      },
-    ],
-  },
-}
-```
-
-移动端的优化，在移动端，搜索框在获得焦点时会放大，并且在失去焦点后可以左右滚动，这可以通过设置元来优化。
-
-```js
-
- head: [
-    ['link', { rel: 'icon', href: '/favicon.ico' }],
-    [
-      'meta',
-      {
-        name: 'viewport',
-        content: 'width=device-width,initial-scale=1,user-scalable=no'
-      }
-    ]
-  ],
-```
+[https://docs.qq.com/desktop](https://docs.qq.com/desktop) 没错，这个是 `腾讯文档`，可以写 PPT，我在 2022 年初的时候简单使用过。这是一些模板 [https://docs.qq.com/mall/index/slide?u=6b06b4c590e24135b18eb56afac7b015&from_page=doc_list_new](https://docs.qq.com/mall/index/slide?u=6b06b4c590e24135b18eb56afac7b015&from_page=doc_list_new)，
 
 [阶段小结]
 
-- 0、VuePress 是一个以 Markdown 为中心的静态网站生成器
-- 1、现在能使用 vitepress 尽可能使用 `vitepress` ，当社区中没有你需求的插件或者能力的时候，可以使用 vuepress
-- 2、不管使用 `config.ts` 或者 `config.js` 都行，在你的项目中可以轻松接入 `typescript`
-- 3、尽可能多读文档，不必要不看一下相关的博客，讲怎么配置怎么配置，有时候可能会把你搞懵圈
-- 4、也不必使用一些第三方的主题，除非你对文档的“华丽性” 有要求，但是这和极简的主旨恰恰相反
+1、上述的两个方案，是云文档的方式，没有本地的文件传来传去的尴尬。但是有一点是这些内容都在一些三方的服务上
+2、比传统的用 `wps` 等等写 PPT 方便多了，
+3、语雀有自己的生态，很多开发者在上分享内容；腾讯文档呢特别依赖一个账号，要么自己的微信，qq 什么的
+4、过于繁杂的流程，让我每次想新建个 ppt 的时候就停止了，仅仅在新建这一步。
+5、当然了，这种类似的方案很多，不过我们今天专注于 `PPT的制作` 也就是幻灯片
 
-随着技术的更新，`vuepress` 也有了 [https://v2.vuepress.vuejs.org/](https://v2.vuepress.vuejs.org/)
+在很久之前，闲逛 `GitHub` 的时候，发现了 [Presentation Slides for Developers](https://github.com/orgs/slidevjs/repositories?q=&type=all&language=&sort=stargazers)
 
-```sh
-git clone https://github.com/vuepress/vuepress-next
+我截止目前还是个 **使用者** 的角色，不过也可以看看一些 repo。按照 `star数`排行的话 [https://github.com/search?o=desc&q=Slidev&s=stars&type=Repositories](https://github.com/search?o=desc&q=Slidev&s=stars&type=Repositories)。有几个结论
+
+1、Slidev 的生态相对 `vite` 啊等等还没那么“热闹”，我猜测是因为它是解决特定问题的原因，还没那么开发者用，因为他们还不需要时长讲演。
+2、作者是 `antfu` ，看看他的知乎，可以看出他是很在意自己的这个作品，当然了，他的作品可不仅仅是这个，不仅仅只有这个。
+
+![图片 支付问题的提问]
+
+3、还有就是我们在 `vscode` 中有插件用 [https://marketplace.visualstudio.com/items?itemName=antfu.slidev](https://marketplace.visualstudio.com/items?itemName=antfu.slidev)
+
+## Sli dev
+
+接着看文档吧，毕竟我还停留在用的层面。像 `vitepress` 等等这种方案，在面试的时候很少考察原理，那么这种方案我大概认为，是解决了特定问题的优秀方案，先不着急搞明白怎么实现的。我有几点体会
+
+1、社区中有很多相似的轮子，这对刚开始学内容的的同学来说容易走弯路，就拿我来说，当初我学 node，就认为要把 `express` `koa` `egg` 等等甚至 `nestjs` 全部掌握才算会点 node。这种基于 node 上层的封装太多了，“眼花缭乱的”
+
+2、当我第一次发现 `Slidev` 的时候，我就发现太酷了，这才是应该多多出现的轮子啊。不过刚开始我不会读，不知道啥意思，为啥叫 `Slidev`
+
+3、文档太友好了，各种语言的。非常赞
+
+> Slidev 并不寻求完全取代其他幻灯片制作工具。相反，它专注于迎合开发者社区的需求。
+
+至少它解决了我最初提到的问题
+
+1、我写 PPT，直接新建了仓库，然后写代码就好了，把代码提到 `GitHub` 服务器
+
+2、我不必登录各种账号，甚至我也不用充会员解锁 ppt 模板。
+
+3、我不用装个本地的 wps ，然后还要想着这个 ppt 文件放在电脑的哪个文件夹下，在没在 `C盘`
+
+4、还有就是我在做视频分享的时候，可以直接用代码，跑起来就直接讲演了。
+
+### 这很酷
+
+1、你会`Markdown 语法` ，就能写幻灯片，这和写博客高度统一
+2、社区中有一些现成的模板 [https://cn.sli.dev/themes/gallery.html](https://cn.sli.dev/themes/gallery.html)
+
+3、你某一页中的代码片段，一流支持，支持 html vue
+
+4、非常快，就是快，即时重载
+
+5、可以录制、能导出为 PDF 或 PNG
+
+6、感叹 `web` 能力的伟大吧，两个字表达我对这个作品的评价：优雅
+
+### 快速开始
+
+> Slidev 会读取位于项目根目录的 slides.md 文件，并将其转换为幻灯片
+
+如果没有这个文件的话，控制台会提示
+
+```ts {2}
+console.log('this is 1')
+console.log('this is 2')
 ```
 
-As Easy as 1, 2, 3
+在`md` 这样写，第 2 行的 `console.log('this is 2')` 会高亮
 
-```sh
-pnpm add -D vuepress@next @vuepress/client@next vue
+> 你也可以在 Markdown 的文本描述中创建图形或图表
 
-# create a markdown file
-echo '# Hello VuePress' > README.md
-
-# start writing
-pnpm vuepress dev
-
-# build to static files
-pnpm vuepress build
-```
-
-## vitepress
-
-在说 vitepress 之前，先说说我静态文档站点踩的坑，希望对你有启发
-
-1. 在最起初想搭建一个博客的时候，特地希望有个非常绚丽的页面，所以找了很多主题 theme，也参考了别人的一些线上的博客项目是怎么配置的
-2. 没有确认博客的建立和博客的内容之前的关系，孰重孰轻，有点本末倒置
-3. 没有好好的看 vuepress 的文档，刚开始的路径不对，没有好奇它是怎么工作的，是怎么把一个 md 文档变为页面
-
-看一看仓库
-
-[https://github.com/search?o=desc&q=vitepress&s=stars&type=Repositories](https://github.com/search?o=desc&q=vitepress&s=stars&type=Repositories)
-
-当时在刚接触 vuepress 的时候，没有好奇 vuepress 的文档是怎么搭建的，是怎么配置的。
-这次使用 vitepress 我先是找了一下，项目的根目录就有 `https://github.com/vuejs/vitepress/tree/main/docs`
-以后想写文档直接参考这个配置就好
-
-着重看这个文件 ：[vitepress/docs/.vitepress/config.ts](https://github.com/vuejs/vitepress/blob/main/docs/.vitepress/config.ts)
-
-- lang: 值是一个字符串 ，默认是 `en-US`
-
-```html
-<!DOCTYPE html>
-<html lang="en"></html>
-```
-
-- title 和 description 和上文的 lang 都是基础的配置
-- cleanUrls ：'disabled' | 'without-subfolders' | 'with-subfolders'
-
-| 模式                 |  页面   |      生成的页面 |   网址    |
-| -------------------- | :-----: | --------------: | :-------: |
-| 'disabled'           | /foo.md |       /foo.html | /foo.html |
-| 'without-subfolders' | /foo.md |       /foo.html |   /foo    |
-| 'with-subfolders'    | /foo.md | /foo/index.html |   /foo    |
-
-themeConfig：主题的一些配置
-
-```js
-// 生成 顶部的nav 导航
-function nav() {
-  return [
-    { text: 'Guide', link: '/guide/what-is-vitepress', activeMatch: '/guide/' },
-    { text: 'Configs', link: '/config/introduction', activeMatch: '/config/' },
-    {
-      text: pkg.version,
-      items: [
-        {
-          text: 'Changelog',
-          link: 'https://github.com/vuejs/vitepress/blob/main/CHANGELOG.md',
-        },
-        {
-          text: 'Contributing',
-          link: 'https://github.com/vuejs/vitepress/blob/main/.github/contributing.md',
-        },
-      ],
-    },
-  ]
-}
-```
-
-关于文档，我很多都是一时兴起，然后想写点什么，这种完全满足了自己的需求，能够立刻生成一个文档，后来想着
-
-`md` `mind` 页面 就是能够在 md 里边写思维导图，可以看看这个
-
-```sh
-git clone https://github.com/mermaid-js/mermaid
-```
-
-要是使用 vitepress ,你可以看看 [CMS](https://mermaid.js.org/misc/integrations.html#cms)
-其中有一个插件可以在 vitepress 中使用，这是文档 [https://emersonbottero.github.io/vitepress-plugin-mermaid/guide/getting-started.html](https://emersonbottero.github.io/vitepress-plugin-mermaid/guide/getting-started.html)
-
-使用的案例，
-
-这个插件能够在 vitepress 的环境中，可以在 md 文档中 写思维导图。
-
-```js
-import { defineConfig } from 'vitepress'
-import { withMermaid } from 'vitepress-plugin-mermaid'
-
-export default withMermaid(
-  defineConfig({
-    title: 'VitePress-starter',
-    description: 'use VitePress',
-
-    lastUpdated: true,
-
-    mermaid: {
-      // refer https://mermaid-js.github.io/mermaid/#/Setup for options
-    },
-  })
-)
-```
-
-若果直接安装使用，会报这个错误
-
-```js
-Uncaught SyntaxError: The requested module '/@fs/D:/gh-code/vitepress-starter/node_modules/.pnpm/moment-mini@2.29.4/node_modules/moment-mini/moment.min.js?v=9ddd3ffc' does not provide an export named 'default' (at mermaid.core.mjs?v=9ddd3ffc:7:8)
-```
-
-你可以看看这个 [issues/24](https://github.com/emersonbottero/vitepress-plugin-mermaid/issues/24) 有上述问题的讨论
-
-在`vitepress` 中和 `vuepress` 中比较友好的一点是可以直接使用 `vue组件`
-
-[https://vitepress.vuejs.org/guide/using-vue](https://vitepress.vuejs.org/guide/using-vue)
-
-<script setup>
-import WordCloud from './components/WordCloud.vue'
-</script>
-
-<WordCloud />
-
-要想这样使用一个组件，和写 vue 代码差不多，装一下`@antv/g2plot` 的依赖，然后在 `docs/components` 新建一个组件`WordCloud.vue`
-
-```vue
-<script lang="ts" setup>
-import { onMounted, onBeforeUnmount } from 'vue'
-import { WordCloud } from '@antv/g2plot'
-
-// 渲染WordCloud
-let wordCloud
-onMounted(() => {
-  wordCloud = new WordCloud('wordcloud-container', {
-    data: [
-      {
-        name: 'a-name',
-        value: 12,
-      },
-      {
-        name: 'b-name',
-        value: 12,
-      },
-    ],
-    wordField: 'name',
-    weightField: 'value',
-    colorField: 'name',
-    wordStyle: {
-      fontFamily: 'Verdana',
-      fontSize: [14, 35],
-      rotation: 0,
-    },
-    // 返回值设置成一个 [0, 1) 区间内的值，
-    // 可以让每次渲染的位置相同（前提是每次的宽高一致）。
-    random: () => 0.5,
-  })
-  wordCloud.render()
-})
-
-onBeforeUnmount(() => {
-  wordCloud.destroy()
-})
-</script>
-
-<template>
-  <div id="wordcloud-container"></div>
-</template>
-```
-
-## slidev
-
-[https://cn.sli.dev/guide/why.html#slidev](https://cn.sli.dev/guide/why.html#slidev)
-[https://mermaid.js.org/intro/](https://mermaid.js.org/intro/)
-
-如题，《Markdown 语法页面化》，上文我们大致了解了 `mermaid` 在文末我们介绍一下 `Slidev`
-
-> Slidev 使用一种扩展的 Markdown 格式，在一个纯文本文件中存储和组织你的幻灯片。这让你专注于制作内容。
-
-只需要 在 一个`*.md` 文件中使用 `---` 添加分隔符来分隔你的幻灯片，就能制作一页又一页的`PPT`。
-
-```sh
-git clone https://github.com/slidevjs/slidev.git
-```
-
-在 [https://github.com/slidevjs/slidev/tree/main/demo/starter](https://github.com/slidevjs/slidev/tree/main/demo/starter) 可以看一下怎么使用的
-
-我是在之前学习 vite 时候发现的，当然了核心作者还是 `antfu Anthony Fu`，项目根目录下的 `slides.md` 是入口，如果没有的话，终端会提示 是否要新建一个 `slides.md`
+这其实是我自己的一个需求场景，我一直希望能在 md 里直接写自己的一些“点子” ，不想用 `xmind` ，后来发现 **mermaid**。这样我就可以直接在写文章的时候直接写思维导图，当然现在在 `PPT` 的时候也可以了。
 
 ```mermaid
 sequenceDiagram
@@ -377,4 +97,78 @@ C -->|One| D[Result 1]
 C -->|Two| E[Result 2]
 ```
 
-简单的通过 md 的语法就能生成图表，真的是太炫酷了，不是吗？
+导出图片的前提需要安装一个包
+
+```sh
+pnpm i -D playwright-chromium
+```
+
+执行`slidev export --format png` ，之后会在项目的根目录生成一个文件夹 `slides-export`
+
+关于幻灯片的尺寸，可以打开控制台，看看这个元素
+
+```html
+<div
+  id="slide-content"
+  style="height: 552px; width: 980px; transform: translate(-50%, -50%) scale(1.69977);"
+>
+  xxxxx
+</div>
+```
+
+> 幻灯片被定义为固定尺寸（默认为 980x552px），并会跟随用户屏幕进行缩放。你可以安全地在你的幻灯片中使用绝对定位，因为它们会随着屏幕的缩放而变化
+
+视图的尺寸变化大概是通过`transform: translate(-50%, -50%) scale(0.404082);` 然后浏览器窗口发生的变化的时候，做到适配不同的屏幕，因为讲演的`PPT` 是要能够兼容各种大屏的。看文档看到这儿的时候，让我想起之前的写的一个 `vue` 组件。
+
+```js
+// 导入 vueuse 包，集成一些 utils
+import { useDebounceFn } from '@vueuse/core'
+// 这里的width 和 height 是外层组件传进来的默认宽度和高度
+const props = defineProps({
+  width: Number,
+  height: Number,
+})
+const domStyle = reactive({
+  width: `${props.width}px`,
+  height: `${props.height}px`,
+  transform: 'scale(1) translateX(-50%)', // 缩放主要是这个transform
+  transformOrigin: '0 0',
+})
+// 设置当前的缩放
+const scaleSetter = () => {
+  const baseWidth = document.documentElement.clientWidth
+  // set domStyle
+  domStyle.transform = `scale(${scaleGetter()}) translateX(-50%)`
+  domStyle.width = `${baseWidth / scaleGetter()}px`
+}
+// 获取当前的缩放
+const scaleGetter = () => {
+  const baseWidth = document.documentElement.clientWidth
+  const baseHeight = document.documentElement.clientHeight
+  const x = baseWidth / props.width
+  const y = baseHeight / props.height
+  const ret = x < y ? x : y
+  return ret
+}
+
+const debouncedFn = useDebounceFn(() => {
+  scaleSetter()
+}, 300)
+// 页面初始化的时候 监听
+const eventHandler = () => {
+  window.addEventListener('resize', debouncedFn)
+}
+// 页面不在的时候 移除
+const removeEventHandler = () => {
+  window.removeEventListener('resize', debouncedFn)
+}
+```
+
+### 扩展一点的内容
+
+1、你可以在 [https://www.npmjs.com/search?q=keywords%3Aslidev-theme](https://www.npmjs.com/search?q=keywords%3Aslidev-theme) 查看或使用一些现有的主题
+
+### 一些经验
+
+1、在安装的是有什么问题，可以自己现有电脑的 node 版本
+2、用到什么模块的时候，再去深究对应文档的上的内容
